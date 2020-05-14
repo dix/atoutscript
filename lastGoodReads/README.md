@@ -1,6 +1,6 @@
 # Last GoodReads
 
-Q&D script to retrieve the five last four starts or more rated books on a [goodreads.com](https://www.goodreads.com/) user profile.
+Q&D script to retrieve the five last four stars ⭐⭐⭐⭐ or more rated books on a [goodreads.com](https://www.goodreads.com/) user profile.
 
 Store the data in a local JSON.
 
