@@ -1,3 +1,3 @@
 # AtoutScript
 
-Some scripts developped to solve issues
+Scripts developed to solve issues
