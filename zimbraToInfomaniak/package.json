@@ -1,0 +1,26 @@
+{
+  "name": "zimbratoinfomaniak",
+  "version": "0.0.1",
+  "description": "Cleaning contacts CSV export from Zimbra to import it in Infomaniak",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/35am/atoutscript.git"
+  },
+  "keywords": [
+    "csv"
+  ],
+  "author": "35am",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/35am/atoutscript/issues"
+  },
+  "homepage": "https://github.com/35am/atoutscript#readme",
+  "dependencies": {
+    "csv-parse": "^5.0.4",
+    "csv-writer": "^1.6.0"
+  }
+}
