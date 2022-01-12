@@ -64,6 +64,12 @@ Pick the right _Folder_[1] and finally _Launch the import_.
 
 _Voilà_.
 
+### Final note
+
+The resulting file contains a _dummy_ row to ease the columns affectation on Infomaniak's tool. It will result in importing a contact called _nom prenom_.
+
+Don't forget to delete it from your folder.
+
 ## Disclaimer
 
 It has been developped in order to fill the needs I had for the process. It's not at all generic since there's no parameters. 
