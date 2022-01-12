@@ -1,0 +1,4 @@
+prenom,nom,societe,proRue,proCP,proVille,proPays,persoRue,persoCP,persoVille,persoPays,mobile,proTel,persoTel,portable,dateNaissance,email,emailPro,emailAutre,note
+prenom,nom,societe,proRue,proCP,proVille,proPays,persoRue,persoCP,persoVille,persoPays,mobile,proTel,persoTel,portable,dateNaissance,email,emailPro,emailAutre,note
+Julian,Alaphilippe,Quick-Step,,,,,12 Allée Ferdi Kübler,1860,Aigle,Switzerland,+33611223344,+33344556677,,,1992-06-11,j.alaph@uci.org,,,
+Charlie,Kelly,Paddy's Pub,,,,,,,,,,,,,1976-02-09,c.kelly@paddy.pub,c.kelly@gmail.com,,"Wildcard, bitches!"
