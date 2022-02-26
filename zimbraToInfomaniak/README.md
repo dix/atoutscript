@@ -72,7 +72,7 @@ Don't forget to delete it from your folder.
 
 ## Disclaimer
 
-It has been developped in order to fill the needs I had for the process. It's not at all generic since there's no parameters. 
+It has been developed in order to fill the needs I had for the process. It's not at all generic since there's no parameters. 
 
 But the code has been made in order to be easily tweaked to anyone's needs.
 
