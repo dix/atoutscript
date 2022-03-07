@@ -1,6 +1,8 @@
 # PatrickBot
 
-Userscript picking automatically a card on [PlanITpoker](https://www.planitpoker.com/) based on its popularity amongst the other players.
+Userscript automatically picking a card on [PlanITpoker](https://www.planitpoker.com/) based on its popularity amongst the other players.
+
+See [Planning Poker on Wikipedia](https://en.wikipedia.org/wiki/Planning_poker).
 
 ## How
 

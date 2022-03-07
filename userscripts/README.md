@@ -6,3 +6,7 @@ Unless explicited otherwise, they have been developed, tested, validated and use
 
 Issues are to be expected when using them with another version of Tampermonkey, another userscripts extension or another web browser.
 
+## Content
+
+* `PatrickBot` > Automatically playing at [PlanITpoker.com](https://www.planitpoker.com/)
+* `ParcelBackInLight` > Retrieving light theme for [Parcelapp.net](https://parcelapp.net/)
