@@ -7,8 +7,8 @@
 // @match        https://hr-services.fr.adp.com/*
 // @icon         https://www.google.com/s2/favicons?domain=adp.com
 // @require      https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js
-// @downloadURL   https://github.com/dix/atoutscript/tree/main/userscripts/D4ADP/D4ADP.user.js
-// @updateURL     https://github.com/dix/atoutscript/tree/main/userscripts/D4ADP/D4ADP.user.js
+// @downloadURL   https://github.com/dix/atoutscript/raw/main/userscripts/D4ADP/D4ADP.user.js
+// @updateURL     https://github.com/dix/atoutscript/raw/main/userscripts/D4ADP/D4ADP.user.js
 // ==/UserScript==
 
 var statusRow;
