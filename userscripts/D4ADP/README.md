@@ -10,9 +10,9 @@ It is provided "as is", without warranty of any kind.
 
 It is not affiliated, associated, authorized, endorsed by, or in any way officially connected with [ADP](https://www.adp.com/).
 
-## How
+## How add an event
 
-![Demo](./assets/adp_demo.gif)
+![Add Demo](./assets/adp_add_demo.gif)
 
 Connect to [ADP](https://hr-services.fr.adp.com/portal-main/portal/#/home) then, on the top menu click on _Temps & Activités_ > _Gestion des Temps & Activités_.
 
@@ -27,3 +27,9 @@ New rows are added on the weekly schedule to quickly add half a day (**left-clic
 - ⛺ Remote (Occasional)
 - 🚲 RTT
 - 🚄 CP
+
+## How add remove daily event
+
+Click on **CTRL + right-click** on one of the two icons (morning of afternoon) and it will delete all the daily events.
+
+![Delete Demo](./assets/adp_delete_demo.gif)
