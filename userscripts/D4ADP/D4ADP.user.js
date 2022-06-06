@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         D4-ADP
 // @namespace    https://github.com/dix/
-// @version      2022.04.05
+// @version      2022.05.23
 // @description  ADP but better
 // @author       https://github.com/dix/
 // @match        https://hr-services.fr.adp.com/*
@@ -12,6 +12,9 @@
 // ==/UserScript==
 
 var statusRow;
+var paramC;
+var startDate;
+var endDate;
 
 (function () {
     'use strict';
@@ -28,9 +31,15 @@ var statusRow;
         // Observer on week pagination to render after changing week
         if (document.getElementById('dat_deb_fin')) {
             const observer = new MutationObserver(() => {
-                setTimeout(function () { renderRows(); }, 500);
+                setTimeout(function () {
+                    renderRows();
+                }, 500);
             });
-            observer.observe(document.getElementById('dat_deb_fin'), { attributes: true, childList: true, subtree: true });
+            observer.observe(document.getElementById('dat_deb_fin'), {
+                attributes: true,
+                childList: true,
+                subtree: true
+            });
         }
 
         // First render on page load
@@ -45,11 +54,16 @@ var statusRow;
 function renderRows() {
     // Retrieving the week's dates from the paginator
     const weekDates = document.getElementById('dat_deb_fin').innerHTML.split(' ');
-    const startDate = moment(weekDates[1], 'DD/MM/YYYY');
-    const endDate = moment(weekDates[3], 'DD/MM/YYYY');
+    startDate = moment(weekDates[1], 'DD/MM/YYYY');
+    endDate = moment(weekDates[3], 'DD/MM/YYYY');
 
     // Row displaying current status of choices
     statusRow = document.getElementById('poi_content_ajax').getElementsByTagName('tbody')[0].querySelectorAll(':scope > tr')[2];
+
+    // Also input hidden #curC apparently
+    paramC = new URLSearchParams(window.location.search).get('c');
+
+    addDeleteListener();
 
     // Rows parameters
     // Start by reseting the
@@ -60,9 +74,7 @@ function renderRows() {
         title: 'Ajouter 1/2 Télétravail Régulier',
         bgColor: '#E5A298',
         type: 'HO',
-        adpClass : 'BC_D',
-        startDate: startDate,
-        endDate: endDate
+        adpClass: 'BC_D'
     });
 
     // TTO
@@ -71,9 +83,7 @@ function renderRows() {
         title: 'Ajouter 1/2 Télétravail Occasionnel',
         bgColor: '#408080',
         type: 'TW',
-        adpClass : 'BC_L',
-        startDate: startDate,
-        endDate: endDate
+        adpClass: 'BC_L'
     });
 
     // RTT
@@ -82,9 +92,7 @@ function renderRows() {
         title: 'Ajouter 1/2 RTT',
         bgColor: '#CC6600',
         type: 'JS',
-        adpClass : 'BC_H',
-        startDate: startDate,
-        endDate: endDate
+        adpClass: 'BC_H'
     });
 
     // CP
@@ -93,9 +101,7 @@ function renderRows() {
         title: 'Ajouter 1/2 CP',
         bgColor: '#800080',
         type: 'CP',
-        adpClass : 'BC_J',
-        startDate: startDate,
-        endDate: endDate
+        adpClass: 'BC_J'
     });
 
     // Building and adding the new rows
@@ -114,13 +120,13 @@ function generateRow(settings) {
     // Building the 14 columns (7 days divided in 2 columns each)
     for (let ij = 0; ij < 7; ij++) {
         // Incrementing date from first day of the week
-        const day = settings.startDate.clone();
+        const day = startDate.clone();
         day.add(ij, 'd');
         // Building the two columns for each day
         // Morning
-        trResult.appendChild(generateCol(settings, { date: day, half: 'M', dayIndex: ij}));
+        trResult.appendChild(generateCol(settings, { date: day, half: 'M', dayIndex: ij }));
         // Afternoon
-        trResult.appendChild(generateCol(settings, { date: day, half: 'A', dayIndex: ij}));
+        trResult.appendChild(generateCol(settings, { date: day, half: 'A', dayIndex: ij }));
     }
 
     return trResult;
@@ -139,7 +145,7 @@ function generateCol(settingsRow, settingsCol) {
     halfDayCol.innerHTML = settingsRow.content;
     halfDayCol.title = settingsRow.title;
 
-    const formatedDate = settingsCol.date.format('DD/MM/YYYY');
+    const formattedDate = settingsCol.date.format('DD/MM/YYYY');
 
     // Click on column : Submit request for the half-day period matching the column's date
     halfDayCol.onclick = () => {
@@ -147,22 +153,22 @@ function generateCol(settingsRow, settingsCol) {
         submitPeriod({
             row: settingsRow,
             half: settingsCol.half,
-            date: formatedDate,
+            date: formattedDate,
             dayIndex: settingsCol.dayIndex
         });
     };
 
     // CTRL+Right-click on column : Submit request for the whole day period matching the column's date
     halfDayCol.oncontextmenu = (event) => {
-        if (window.event.ctrlKey) {
+        if (event.ctrlKey) {
             // Block contextmenu
-            event.preventDefault;
+            event.preventDefault();
 
             // Make request for the whole day
             submitPeriod({
                 row: settingsRow,
                 half: 'J',
-                date: formatedDate,
+                date: formattedDate,
                 dayIndex: settingsCol.dayIndex
             });
 
@@ -173,14 +179,59 @@ function generateCol(settingsRow, settingsCol) {
     return halfDayCol;
 }
 
+function getDjInfos(col) {
+    let djInfos = col.getAttribute('djinfos').split('*');
+    return {
+        nom: decodeURI(djInfos[2]),
+        typ_ptg: djInfos[3],
+        dat_jou: djInfos[4],
+        sin: djInfos[6]
+    };
+}
+
+/**
+ *
+ * @param djInfos
+ */
+function deleteDailyEvent(djInfos) {
+
+    // Building payload from settings and fields within the page
+    const payload = {
+        mat: document.getElementById('mat')?.value,
+        soc: document.getElementById('soc')?.value,
+        nom: djInfos.nom,
+        dat_jou: djInfos.dat_jou,
+        typ_ptg: djInfos.typ_ptg,
+        sin: djInfos.sin,
+        COLONNE_TRI: '',
+        FLAG_TRI: '',
+        TRI: ''
+    };
+
+    apiCall('detail_journalier', 'EVENEMENTS', payload, treatDailyEventList);
+}
+
+function treatDailyEventList(data) {
+    let htmlDoc = stringToHtml(data);
+    let listTr = htmlDoc.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    let infosIdsToDelete = [...listTr].filter(tr => tr.getAttribute('infosId')).map(tr => JSON.parse(tr.getAttribute('infosId'))).filter(infosId => infosId.STATUT !== '101');
+
+    if (infosIdsToDelete.length > 0) {
+
+        const payload = {
+            EVTS: JSON.stringify(infosIdsToDelete)
+        }
+
+        apiCall('EVENEMENTS', 'CONSULTATION_SUPPRIMER', payload, refreshStatusRow);
+    }
+}
+
 /**
  * Submitting event request based on the given settings
  * @param {*} settings
  */
 function submitPeriod(settings) {
-    // Also input hidden #curC apparently
-    const paramC = new URLSearchParams(window.location.search).get('c');
-
     // Building payload from settings and fields within the page
     const payload = {
         contexte: 'E',
@@ -211,39 +262,88 @@ function submitPeriod(settings) {
         opt_envoi_mail: 0
     };
 
-    //console.debug('Payload :', payload);
+    apiCall('evenements', 'SAISIR', payload, refreshStatusRow);
+}
 
+/**
+ * Add listener on status row to delete daily events
+ */
+function addDeleteListener() {
+    statusRow.querySelectorAll('td').forEach(col => col.oncontextmenu = (event) => {
+        if (event.ctrlKey) {
+            // Block contextmenu
+            event.preventDefault();
+
+            deleteDailyEvent(getDjInfos(col));
+
+            // Block contextmenu
+            return false;
+        }
+    });
+}
+
+/**
+ * Refresh the status row to show the user the success of their actions
+ */
+function refreshStatusRow() {
+    const payload = {
+        date_deb: startDate.format('DD/MM/YYYY'),
+        date_fin: endDate.format('DD/MM/YYYY'),
+        periodicite: "1"
+    }
+
+    apiCall('declaration', 'CONS_POI_DAY', payload, refreshStatusRowFromData);
+}
+
+/**
+ * Extract status row data from the api response and remove/add child.
+ * Then add delete listener on the child
+ * @param data the api response
+ */
+function refreshStatusRowFromData(data) {
+    let htmlDoc = stringToHtml(data);
+    let extractedStatusRow = htmlDoc.getElementsByTagName('tbody')[0].querySelectorAll(':scope > tr')[2];
+    while (statusRow.firstChild) {
+        statusRow.removeChild(statusRow.firstChild);
+    }
+    while (extractedStatusRow.firstChild) {
+        statusRow.appendChild(extractedStatusRow.firstChild.cloneNode(true));
+        extractedStatusRow.removeChild(extractedStatusRow.firstChild);
+    }
+    addDeleteListener();
+}
+
+/**
+ * Call API dojo
+ * @param moduleAjax the module ajax name to use
+ * @param actionAjax the action ajax name to use
+ * @param payload the payload
+ * @param callbackSuccess the function to call in case of success
+ */
+function apiCall(moduleAjax, actionAjax, payload, callbackSuccess) {
     if (typeof dojo !== 'undefined') {
-
         // Making the actual request to the backend
         // Using dojo (provided by ADP) to handle the request and some safety stuff
         dojo.xhrPost({
-            url: `index.ajax.php?c=${paramC}&module_ajax=evenements&action_ajax=SAISIR`,
+            url: `index.ajax.php?c=${paramC}&module_ajax=${moduleAjax}&action_ajax=${actionAjax}`,
             content: payload,
             preventCache: true,
-            load: () => { addToStatusRow(settings); },
-            error: (er) => { console.error('It failed!', er); }
+            load: (data) => {
+                callbackSuccess(data)
+            },
+            error: (er) => {
+                console.error('It failed!', er);
+            }
         });
     }
 }
 
 /**
- * Add the newly created event in the status row to show the user the success of their actions
- * @param {*} settings
+ * Parse string using DOM parser to get html Document
+ * @param data the string data
+ * @returns {Document}
  */
-function addToStatusRow(settings){
-    switch (settings.half){
-        case 'M' :
-            // Morning
-            statusRow.querySelectorAll('td')[settings.dayIndex * 2].classList.add(...[settings.row.adpClass]);
-            break;
-        case 'A' :
-            // Afternoon
-            statusRow.querySelectorAll('td')[(settings.dayIndex * 2) +1 ].classList.add(...[settings.row.adpClass]);
-            break;
-        default :
-            // Whole day
-            statusRow.querySelectorAll('td')[settings.dayIndex * 2 ].classList.add(...[settings.row.adpClass]);
-            statusRow.querySelectorAll('td')[(settings.dayIndex * 2) +1 ].classList.add(...[settings.row.adpClass]);
-    }
+function stringToHtml(data) {
+    let parser = new DOMParser();
+    return parser.parseFromString(data, 'text/html');
 }
