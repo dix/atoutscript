@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         D4-ADP
 // @namespace    https://github.com/dix/
-// @version      2022.05.23
+// @version      2022.06.06
 // @description  ADP but better
 // @author       https://github.com/dix/
 // @match        https://hr-services.fr.adp.com/*
@@ -57,16 +57,16 @@ function renderRows() {
     startDate = moment(weekDates[1], 'DD/MM/YYYY');
     endDate = moment(weekDates[3], 'DD/MM/YYYY');
 
-    // Row displaying current status of choices
-    statusRow = document.getElementById('poi_content_ajax').getElementsByTagName('tbody')[0].querySelectorAll(':scope > tr')[2];
-
-    // Also input hidden #curC apparently
+    // Retrieving global input hidden #curC
     paramC = new URLSearchParams(window.location.search).get('c');
 
+    // Retrieving row displaying current status for each day of the week
+    statusRow = document.getElementById('poi_content_ajax').getElementsByTagName('tbody')[0].querySelectorAll(':scope > tr')[2];
+
+    // Adding listener on status row to manage delete action
     addDeleteListener();
 
     // Rows parameters
-    // Start by reseting the
     const rowsParams = [];
     // TT
     rowsParams.push({
@@ -133,7 +133,7 @@ function generateRow(settings) {
 }
 
 /**
- * Generating a new row based on the given settings
+ * Generating a new column based on the given settings
  * @param {*} settingsRow Global settings for the raw
  * @param {*} settingsCol Specific settings for the column (date...)
  * @returns HTMLTableCellElement
@@ -179,19 +179,19 @@ function generateCol(settingsRow, settingsCol) {
     return halfDayCol;
 }
 
-function getDjInfos(col) {
-    let djInfos = col.getAttribute('djinfos').split('*');
-    return {
-        nom: decodeURI(djInfos[2]),
-        typ_ptg: djInfos[3],
-        dat_jou: djInfos[4],
-        sin: djInfos[6]
-    };
-}
-
 /**
+ * Delete an event for the given data and update the status row
  *
- * @param djInfos
+ * WARNING !
+ * The removal of an event is done in two steps :
+ * - first we retrieve events associated with djinfo criterias (call done in the current method)
+ * - then we request the backend to delete events using their IDs found in the response to the first request (done in treatDailyEventListToDelete)
+ *
+ * The main page/status row from which the request is made by the user doesn't carries enough data (the event IDs) to execute the request with one call to the backend.
+ * That's why deleteDailyEvent is making a first call but the actual removal is done in its callback treatDailyEventListToDelete
+ *
+ *
+ * @param {} Data about the event
  */
 function deleteDailyEvent(djInfos) {
 
@@ -208,13 +208,20 @@ function deleteDailyEvent(djInfos) {
         TRI: ''
     };
 
-    apiCall('detail_journalier', 'EVENEMENTS', payload, treatDailyEventList);
+    // Call the backend to retrieve list of events associated to the data and treat them
+    apiCall('detail_journalier', 'EVENEMENTS', payload, treatDailyEventListToDelete);
 }
 
-function treatDailyEventList(data) {
+/**
+ * Delete active events found in the list provided
+ * @param {} List of events retrieved from the backend
+ */
+function treatDailyEventListToDelete(data) {
+    // The response is an HTML page, we parse it and retrieve content within
     let htmlDoc = stringToHtml(data);
     let listTr = htmlDoc.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
 
+    // Filter the results to keep only active events (we don't want to delete events that have already been deleted)
     let infosIdsToDelete = [...listTr].filter(tr => tr.getAttribute('infosId')).map(tr => JSON.parse(tr.getAttribute('infosId'))).filter(infosId => infosId.STATUT !== '101');
 
     if (infosIdsToDelete.length > 0) {
@@ -223,6 +230,7 @@ function treatDailyEventList(data) {
             EVTS: JSON.stringify(infosIdsToDelete)
         }
 
+        // Call the backend to delete the events and refresh the status row on success
         apiCall('EVENEMENTS', 'CONSULTATION_SUPPRIMER', payload, refreshStatusRow);
     }
 }
@@ -262,61 +270,54 @@ function submitPeriod(settings) {
         opt_envoi_mail: 0
     };
 
+    // Call the backend and update status row on success
     apiCall('evenements', 'SAISIR', payload, refreshStatusRow);
-}
-
-/**
- * Add listener on status row to delete daily events
- */
-function addDeleteListener() {
-    statusRow.querySelectorAll('td').forEach(col => col.oncontextmenu = (event) => {
-        if (event.ctrlKey) {
-            // Block contextmenu
-            event.preventDefault();
-
-            deleteDailyEvent(getDjInfos(col));
-
-            // Block contextmenu
-            return false;
-        }
-    });
 }
 
 /**
  * Refresh the status row to show the user the success of their actions
  */
 function refreshStatusRow() {
+    // Building payload
     const payload = {
         date_deb: startDate.format('DD/MM/YYYY'),
         date_fin: endDate.format('DD/MM/YYYY'),
-        periodicite: "1"
+        periodicite: '1'
     }
 
+    // Call the backend and update status row on success
     apiCall('declaration', 'CONS_POI_DAY', payload, refreshStatusRowFromData);
 }
 
 /**
- * Extract status row data from the api response and remove/add child.
- * Then add delete listener on the child
- * @param data the api response
+ * Rebuild the status row from the given data
+ * @param {} Page content retrieved from the backend
  */
 function refreshStatusRowFromData(data) {
+    // The response is an HTML page, we parse it and retrieve content within
     let htmlDoc = stringToHtml(data);
     let extractedStatusRow = htmlDoc.getElementsByTagName('tbody')[0].querySelectorAll(':scope > tr')[2];
+
+    // First we empty the current row
     while (statusRow.firstChild) {
         statusRow.removeChild(statusRow.firstChild);
     }
+
+    // Then refill it with the fresh data
     while (extractedStatusRow.firstChild) {
         statusRow.appendChild(extractedStatusRow.firstChild.cloneNode(true));
         extractedStatusRow.removeChild(extractedStatusRow.firstChild);
     }
+
+    // Finally add listeners on the new content to manage delete event
     addDeleteListener();
 }
 
 /**
- * Call API dojo
- * @param moduleAjax the module ajax name to use
- * @param actionAjax the action ajax name to use
+ * Generic method to call ADP's backend
+ * Uses dojo library included by ADP
+ * @param moduleAjax module_ajax parameter value
+ * @param actionAjax action_ajax parameter value
  * @param payload the payload
  * @param callbackSuccess the function to call in case of success
  */
@@ -339,11 +340,45 @@ function apiCall(moduleAjax, actionAjax, payload, callbackSuccess) {
 }
 
 /**
- * Parse string using DOM parser to get html Document
+ * Parse string using vanilla DOMParser to get HTML Document
  * @param data the string data
  * @returns {Document}
  */
 function stringToHtml(data) {
-    let parser = new DOMParser();
-    return parser.parseFromString(data, 'text/html');
+    return new DOMParser().parseFromString(data, 'text/html');
+}
+
+/**
+ * Add CTRL+Right-click listener on status row to handle delete action of events
+ */
+function addDeleteListener() {
+    statusRow.querySelectorAll('td').forEach(col => {
+        col.oncontextmenu = (event) => {
+            if (event.ctrlKey) {
+                // Block contextmenu
+                event.preventDefault();
+
+                deleteDailyEvent(getDjInfos(col));
+
+                // Block contextmenu
+                return false;
+            }
+        }
+    });
+}
+
+
+/**
+ * Retrieve ADP's djinfos from a given column
+ * @param {*} Column from which to retrieve the data
+ * @returns {} Data
+ */
+function getDjInfos(col) {
+    let djInfos = col.getAttribute('djinfos').split('*');
+    return {
+        nom: decodeURI(djInfos[2]),
+        typ_ptg: djInfos[3],
+        dat_jou: djInfos[4],
+        sin: djInfos[6]
+    };
 }

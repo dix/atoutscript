@@ -10,7 +10,7 @@ It is provided "as is", without warranty of any kind.
 
 It is not affiliated, associated, authorized, endorsed by, or in any way officially connected with [ADP](https://www.adp.com/).
 
-## How add an event
+## How to add an event
 
 ![Add Demo](./assets/adp_add_demo.gif)
 
@@ -28,8 +28,8 @@ New rows are added on the weekly schedule to quickly add half a day (**left-clic
 - 🚲 RTT
 - 🚄 CP
 
-## How add remove daily event
+## How to remove an event
 
-Click on **CTRL + right-click** on one of the two icons (morning of afternoon) and it will delete all the daily events.
+Use **CTRL + right-click** on one of the two blocks (morning or afternoon) of a given day's row below _Détail présence_.
 
 ![Delete Demo](./assets/adp_delete_demo.gif)
