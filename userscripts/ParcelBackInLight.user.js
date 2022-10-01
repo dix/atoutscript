@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parcel : BackInLight
 // @description  Breaks parcelapp.net dark theme's media queries to stay on light theme even with a dark configured browser
-// @version      2022.01.31.1
+// @version      2022.10.01.1
 // @namespace    https://github.com/dix/atoutscript/
 // @downloadURL  https://github.com/dix/atoutscript/raw/main/userscripts/ParcelBackInLight.user.js
 // @updateURL    https://github.com/dix/atoutscript/raw/main/userscripts/ParcelBackInLight.user.js
@@ -10,11 +10,11 @@
 // @grant        none
 // ==/UserScript==
 
-(function () {
+(function() {
     'use strict';
     [...document.styleSheets[0].cssRules].forEach((c) => {
-        if (c.conditionText && c.conditionText.endsWith('dark)')) {
-            c.conditionText = c.conditionText.replace('dark)', 'nope)');
+        if(c.media && c.media.mediaText.endsWith('dark)')){
+            c.media = c.media.mediaText.replace('dark)', 'nope)');
         }
     });
 })();
