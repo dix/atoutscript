@@ -8,5 +8,6 @@ Issues are to be expected when using them with another version of Tampermonkey, 
 
 ## Content
 
+* `fAWSicon` > Matching service's favicon on [AWS Management Console](https://aws.amazon.com/)
 * `PatrickBot` > Automatically playing at [PlanITpoker.com](https://www.planitpoker.com/)
 * `ParcelBackInLight` > Retrieving light theme for [Parcelapp.net](https://parcelapp.net/)
