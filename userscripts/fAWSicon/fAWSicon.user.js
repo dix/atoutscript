@@ -5,6 +5,8 @@
 // @version      2022.10.07.1
 // @description  Matching the favicon with the service currently opened in the AWS Management Console; hugely inspired by https://github.com/b0o/aws-favicons-webextension
 // @author       https://github.com/dix/
+// @downloadURL   https://github.com/dix/atoutscript/raw/main/userscripts/fAWSicon/fAWSicon.user.js
+// @updateURL     https://github.com/dix/atoutscript/raw/main/userscripts/fAWSicon/fAWSicon.user.js
 // @match        https://*.console.aws.amazon.com/*
 // @connect      github.com
 // @connect      githubusercontent.com
