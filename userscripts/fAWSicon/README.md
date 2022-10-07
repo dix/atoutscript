@@ -2,6 +2,8 @@
 
 Userscript matching the favicon with the service currently opened in the AWS Management Console.
 
+![Tabs Example](./assets/tabs.png)
+
 ## Disclaimer
 
 It is provided "as is", without warranty of any kind.
