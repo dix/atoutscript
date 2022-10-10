@@ -44,7 +44,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          ref: feat/commytho
           repository: dix/atoutscript
           path: ./atoutscript
       # Copy Commytho in working directory
