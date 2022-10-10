@@ -21,7 +21,7 @@ function next(id) {
         executeCmd(`echo '${Date.now()}' > ${argv.outputfile}`);
         executeCmd(`git config --local user.email "${argv.git.email}"`,
             () => executeCmd(`git config --local user.name "${argv.git.username}"`,
-                () => executeCmd(`git add . && git commit -m 'commytho: blip blop' -a`,
+                () => executeCmd(`git add `${argv.outputfile}` && git commit -m 'commytho: blip blop' -a`,
                     () => next(id + 1)
                 )
             )
