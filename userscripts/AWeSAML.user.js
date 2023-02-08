@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         AWeSAML
 // @namespace    http://github.com/dix
-// @version      2023.02.07.0
+// @version      2023.02.08.0
 // @description  A nicer UI for AWS' SAML login form
 // @author       http://github.com/dix
 // @match        https://signin.aws.amazon.com/saml
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=aws.amazon.com
+// @downloadURL  https://github.com/dix/atoutscript/raw/main/userscripts/AWeSAML.user.js
+// @updateURL    https://github.com/dix/atoutscript/raw/main/userscripts/AWeSAML.user.js
 // @grant        GM_addElement
 // ==/UserScript==
 
@@ -30,7 +32,7 @@ let roles = [];
     // Adding custom CSS
     generateCustomCSS();
 
-    // Import Bootstrap
+    // Importing Bootstrap
     GM_addElement('link', {
         href: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css',
         rel: 'stylesheet'
@@ -50,6 +52,11 @@ let roles = [];
     // Extracting the roles from the main DOM
     [...document.getElementsByClassName('saml-account')].filter(it => it.id === '').forEach(it => {
         roles = roles.concat(extractRoles(it));
+    });
+
+    // Generating full names with duplicates handling
+    roles.forEach(x => {
+        x.full_name = getFullName(x.name, x.account_name, x.env)
     });
 
     // Sorting by order settings
@@ -75,14 +82,15 @@ function extractRoles(accountInput) {
         ...itt,
         env,
         id: accountId + index,
-        full_name: getFullName(itt.name, cleanedName, env)
+        account_name: cleanedName,
+        name: itt.name
     }));
     return roles;
 }
 
 function getFullName(name, accountName, env) {
-    // For OTHER env we need to specify both the role and account's names
-    return env === 'OTHER' ? `${name} (${accountName})` : name;
+    // For OTHER env, or roles with same name in one env, we need to specify both the role and account's names
+    return (env === 'OTHER' || roles.filter(x => x.env == env && x.name == name).length > 1) ? `${name} (${accountName})` : name;
 }
 
 function extractEnv(name) {
