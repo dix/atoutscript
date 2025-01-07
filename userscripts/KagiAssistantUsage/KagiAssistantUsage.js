@@ -10,7 +10,6 @@
 // @updateURL    https://github.com/dix/atoutscript/raw/refs/heads/main/userscripts/KagiAssistantUsage/KagiAssistantUsage.js
 // @grant        GM.xmlHttpRequest
 // ==/UserScript==
-
 (function () {
     'use strict';
 
