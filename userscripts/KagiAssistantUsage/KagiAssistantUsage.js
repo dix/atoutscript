@@ -2,7 +2,7 @@
 // @name        KagiAssistantUsage
 // @description Display Kagi Assistant Usage Widget
 // @match       https://kagi.com/assistant*
-// @version     2025.01.07.0
+// @version     2025.01.07.1
 // @author      https://github.com/dix
 // @namespace   https://github.com/dix
 // @icon        https://www.google.com/s2/favicons?sz=64&domain=kagi.com
@@ -60,9 +60,8 @@
                 `;
 
                 if (usageData) {
-                    const totalTokens = usageData.reduce((sum, month) => sum + month.aiTokens, 0);
                     displayBox.innerHTML = `
-                        <p style="margin: 5px 0">Monthly Tokens Usage: ${totalTokens.toLocaleString()}</p>
+                        <p style="margin: 5px 0">Monthly Tokens Usage: ${usageData[0].aiTokens.toLocaleString()}</p>
                     `;
                 } else {
                     displayBox.innerHTML = '<p>No usage data found</p>';
