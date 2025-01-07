@@ -5,10 +5,13 @@
 // @version     2025.01.07.0
 // @author      https://github.com/dix
 // @namespace   https://github.com/dix
+// @icon        https://www.google.com/s2/favicons?sz=64&domain=kagi.com
+// @downloadURL  https://github.com/dix/atoutscript/raw/refs/heads/main/userscripts/KagiAssistantUsage/KagiAssistantUsage.js
+// @updateURL    https://github.com/dix/atoutscript/raw/refs/heads/main/userscripts/KagiAssistantUsage/KagiAssistantUsage.js
 // @grant        GM.xmlHttpRequest
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
     function parseUsageData(responseText) {
@@ -37,7 +40,7 @@
         GM.xmlHttpRequest({
             method: 'GET',
             url: 'https://kagi.com/settings?p=consumption&range=1',
-            onload: function(response) {
+            onload: function (response) {
                 const usageData = parseUsageData(response.responseText);
 
                 const displayBox = document.createElement('div');
@@ -68,7 +71,7 @@
 
                 document.body.appendChild(displayBox);
             },
-            onerror: function(error) {
+            onerror: function (error) {
                 console.error('Error fetching usage data:', error);
             }
         });
