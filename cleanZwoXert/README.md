@@ -1,6 +1,6 @@
 # cleanZwo.sh
 
-Removing the `ftpOverride` properties in all the `.zwo` files contained within a given directory and its subdirectories.
+Removing the `ftpOverride` property in all the `.zwo` files contained within a given directory and its subdirectories.
 
 ## Usage
 
@@ -16,7 +16,7 @@ This approach allows Xert to provide their users with the most straightforward e
 
 But one can still want to manage their workout's target based on the FTP set on Zwift; to set it higher or lower than the one detected by Xert.
 
-This script is here to automatically remove the `ftpOverride` in all `.zwo` files to achieve exactly this purpose.
+This script is here to automatically remove the `ftpOverride` in all `.zwo` files and achieve exactly this purpose.
 
 ## Note
 
