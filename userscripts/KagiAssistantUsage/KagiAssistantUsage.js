@@ -2,7 +2,7 @@
 // @name        KagiAssistantUsage
 // @description Display Kagi Assistant Usage Widget
 // @match       https://kagi.com/assistant*
-// @version     2025.01.07.1
+// @version     2025.06.06
 // @author      https://github.com/dix
 // @namespace   https://github.com/dix
 // @icon        https://www.google.com/s2/favicons?sz=64&domain=kagi.com
@@ -25,9 +25,12 @@
 
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
-            if (cells.length === 3) {
+            if (cells.length >= 4) {
                 data.push({
-                    aiTokens: parseInt(cells[1].textContent.replace(/,/g, ''))
+                    date: cells[0].textContent.trim(),
+                    aiTokens: parseInt(cells[1].textContent.replace(/,/g, '')) || 0,
+                    aiCost: parseFloat(cells[2].textContent) || 0,
+                    searches: parseInt(cells[3].textContent) || 0
                 });
             }
         });
@@ -61,7 +64,7 @@
 
                 if (usageData) {
                     displayBox.innerHTML = `
-                        <p style="margin: 5px 0">Monthly Tokens Usage: ${usageData[0].aiTokens.toLocaleString()}</p>
+                        <p style="margin: 5px 0">Monthly Tokens Usage: ${usageData[0].aiTokens.toLocaleString()} / Cost: $${usageData[0].aiCost.toLocaleString()}</p>
                     `;
                 } else {
                     displayBox.innerHTML = '<p>No usage data found</p>';
